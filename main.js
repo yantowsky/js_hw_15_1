@@ -12,13 +12,10 @@ addTodoBtn.addEventListener('click', function () {
 
 todosList.addEventListener('click', function (event) {
     const keyLocalStorage = event.target.closest('.todo-item').getAttribute('value');
-    if (event.target.classList.contains('todo-item__delete')) {
-        delValueToLocalStorage(keyLocalStorage);
-        renderTodoList();
-    }
-    if (event.target.tagName === 'INPUT' && event.target.type === 'checkbox') {
+    event.target.classList.contains('todo-item__delete') &&
+        (delValueToLocalStorage(keyLocalStorage), renderTodoList());
+    event.target.tagName === 'INPUT' && event.target.type === 'checkbox' &&
         stateCheckbox(keyLocalStorage, event);
-    }
 });
 
 function createJsonDataObjTodo(boolean, value) {
@@ -72,10 +69,9 @@ function renderTodoList() {
             const parseJsonDataObjTodo = JSON.parse(localStorage.getItem(localStorage.key(i)));
             spanForTodoItem.innerText = parseJsonDataObjTodo.valueTodo;
 
-            if (parseJsonDataObjTodo.checkbox) {
-                todoItem.classList.toggle('todo-item--checked');
-                checkBoxForTodoItem.checked = parseJsonDataObjTodo.checkbox;
-            }
+            parseJsonDataObjTodo.checkbox &&
+                (todoItem.classList.toggle('todo-item--checked'),
+                    checkBoxForTodoItem.checked = parseJsonDataObjTodo.checkbox);
 
             todoItem.setAttribute('value', localStorage.key(i));
             todoItem.append(checkBoxForTodoItem, spanForTodoItem, delButtonForTodoItem);
