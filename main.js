@@ -22,8 +22,8 @@ function createTodoList() {
         localStorage.setItem('todo_list', JSON.stringify(arrTodoList));
     } else {
         for (i = 0; i < localStorage.length; i++) {
-            arrTodoList = (localStorage.key(i) === 'todo_list') &&
-                JSON.parse(localStorage.getItem(localStorage.key(i)));
+            localStorage.key(i) === 'todo_list' &&
+                (arrTodoList = JSON.parse(localStorage.getItem(localStorage.key(i))));
         }
     }
     renderTodoList();
