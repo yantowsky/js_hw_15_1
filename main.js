@@ -1,57 +1,74 @@
+let arrTodoList = [];
+
 const addTodoBtn = document.querySelector('.form__btn');
-const inputTodo = document.querySelector('.js--form__input');
 const todosList = document.querySelector('.js--todos-wrapper');
 
-let valueInputTodo;
-
 addTodoBtn.addEventListener('click', function () {
-    valueInputTodo = inputTodo.value;
-    !valueInputTodo ? alert("Неможливо створити пусту нотаткуй") : addValueToLocalStorage(valueInputTodo);
-    renderTodoList();
+    const inputTodo = document.querySelector('.js--form__input');
+    const valueInputTodo = inputTodo.value;
+    !valueInputTodo ? alert("Неможливо створити пусту нотаткуй") :
+        addTodoToArr(createNewNumIdForTodo(), false, valueInputTodo);
 });
 
 todosList.addEventListener('click', function (event) {
     const keyLocalStorage = event.target.closest('.todo-item').getAttribute('value');
-    event.target.classList.contains('todo-item__delete') &&
-        (delValueToLocalStorage(keyLocalStorage), renderTodoList());
+    event.target.classList.contains('todo-item__delete') && delTodoToArr(keyLocalStorage);
     event.target.tagName === 'INPUT' && event.target.type === 'checkbox' &&
         stateCheckbox(keyLocalStorage, event);
 });
 
-function createJsonDataObjTodo(boolean, value) {
-    dataObjForTodo = {
-        checkbox: boolean,
-        valueTodo: value
+function createTodoList() {
+    if (arrTodoList.length) {
+        localStorage.setItem('todo_list', JSON.stringify(arrTodoList));
+    } else {
+        for (i = 0; i < localStorage.length; i++) {
+            arrTodoList = (localStorage.key(i) === 'todo_list') &&
+                JSON.parse(localStorage.getItem(localStorage.key(i)));
+        }
     }
-    return JSON.stringify(dataObjForTodo);
+    renderTodoList();
+}
+createTodoList();
+
+function createNewNumIdForTodo() {
+    let numForIdTodo = !arrTodoList.length ? 1 :
+        Number(((arrTodoList[arrTodoList.length - 1]).id).slice(5)) + 1;
+    return numForIdTodo;
 }
 
-let numForNameKey = 1;
-
-function addValueToLocalStorage(value) {
-    localStorage.getItem(`todo_${numForNameKey}`) ?
-        (numForNameKey++, addValueToLocalStorage(value)) :
-        localStorage.setItem(`todo_${numForNameKey}`, createJsonDataObjTodo(false, value));
+function addTodoToArr(num, boolean, input) {
+    dataObjForTodo = {
+        id: `todo_${num}`,
+        checkbox: boolean,
+        value: input
+    }
+    arrTodoList.push(dataObjForTodo);
+    createTodoList();
 }
 
-function delValueToLocalStorage(key) {
-    localStorage.removeItem(key);
+function delTodoToArr(id) {
+    arrTodoList.forEach((element, index) => {
+        element.id === id && (arrTodoList.splice([index], 1));
+        !index && localStorage.removeItem('todo_list');
+    });
+    createTodoList();
 }
 
 function stateCheckbox(key, event) {
     event.target.closest('.todo-item').classList.toggle('todo-item--checked');
 
     const stateCheckbox = event.target.checked;
-    const parseJsonDataObjTodo = JSON.parse(localStorage.getItem(key));
-    parseJsonDataObjTodo.checkbox = stateCheckbox;
 
-    const stringJsonDataObjTodo = JSON.stringify(parseJsonDataObjTodo);
-    localStorage.setItem(key, stringJsonDataObjTodo);
+    arrTodoList.forEach(element => {
+        element.id === key && (element.checkbox = stateCheckbox);
+    });
+    createTodoList();
 }
 
 function renderTodoList() {
     todosList.innerHTML = '';
-    for (i = 0; i < localStorage.length; i++) {
+
+    arrTodoList.forEach(element => {
         const todoItem = document.createElement('li');
         todoItem.classList.add('todo-item');
 
@@ -65,18 +82,15 @@ function renderTodoList() {
         delButtonForTodoItem.classList.add('todo-item__delete');
         delButtonForTodoItem.innerText = 'Видалити';
 
-        if (localStorage.key(i).slice(0, 5) === 'todo_') {
-            const parseJsonDataObjTodo = JSON.parse(localStorage.getItem(localStorage.key(i)));
-            spanForTodoItem.innerText = parseJsonDataObjTodo.valueTodo;
+        spanForTodoItem.innerText = element.value;
 
-            parseJsonDataObjTodo.checkbox &&
-                (todoItem.classList.toggle('todo-item--checked'),
-                    checkBoxForTodoItem.checked = parseJsonDataObjTodo.checkbox);
+        todoItem.setAttribute('value', element.id);
 
-            todoItem.setAttribute('value', localStorage.key(i));
-            todoItem.append(checkBoxForTodoItem, spanForTodoItem, delButtonForTodoItem);
-            todosList.append(todoItem);
-        }
-    }
+        element.checkbox &&
+            (todoItem.classList.toggle('todo-item--checked'),
+                checkBoxForTodoItem.checked = element.checkbox);
+
+        todoItem.append(checkBoxForTodoItem, spanForTodoItem, delButtonForTodoItem);
+        todosList.append(todoItem);
+    });
 }
-renderTodoList();
