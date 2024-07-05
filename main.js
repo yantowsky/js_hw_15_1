@@ -11,10 +11,10 @@ addTodoBtn.addEventListener('click', function () {
 });
 
 todosList.addEventListener('click', function (event) {
-    const keyLocalStorage = event.target.closest('.todo-item').getAttribute('value');
-    event.target.classList.contains('todo-item__delete') && delTodoToArr(keyLocalStorage);
+    const attributeValueTodoItem = event.target.closest('.todo-item').getAttribute('value');
+    event.target.classList.contains('todo-item__delete') && delTodoToArr(attributeValueTodoItem);
     event.target.tagName === 'INPUT' && event.target.type === 'checkbox' &&
-        stateCheckbox(keyLocalStorage, event);
+        stateCheckbox(attributeValueTodoItem, event);
 });
 
 function createTodoList() {
@@ -54,13 +54,13 @@ function delTodoToArr(id) {
     createTodoList();
 }
 
-function stateCheckbox(key, event) {
+function stateCheckbox(id, event) {
     event.target.closest('.todo-item').classList.toggle('todo-item--checked');
 
     const stateCheckbox = event.target.checked;
 
     arrTodoList.forEach(element => {
-        element.id === key && (element.checkbox = stateCheckbox);
+        element.id === id && (element.checkbox = stateCheckbox);
     });
     createTodoList();
 }
